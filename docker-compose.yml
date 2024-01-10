@@ -1,0 +1,27 @@
+version: '3'
+services:
+  mysqldb:
+    container_name: mysql-db
+    image: mysql:8.2.0
+    env_file:
+      - ./.env
+    ports:
+      - $MYSQL_PORT:$MYSQL_PORT
+    volumes:
+      - db:/var/lib/mysql
+  backend:
+    depends_on:
+      - mysqldb
+    container_name: auth-backend
+    build: .
+    volumes:
+      - .:/usr/src/app
+    env_file:
+      - ./.env
+    ports:
+      - $PORT:$PORT
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  
+volumes:
+  db:
