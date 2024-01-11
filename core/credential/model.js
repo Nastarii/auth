@@ -9,6 +9,13 @@ const Credential = db.define('credential', {
     },
     clientId: {
         type: db.Sequelize.INTEGER,
+        foreignKey: true,
+        allowNull: false,
+        unique: true,
+    },
+    authorizationId: {
+        type: db.Sequelize.INTEGER,
+        foreignKey: true,
         allowNull: false,
         unique: true,
     },

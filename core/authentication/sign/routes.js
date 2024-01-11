@@ -8,7 +8,7 @@ const Authorization = require('../../authorization/model');
 
 const { handleViolations, handlePasswordPolicy } = require('./controller');
 
-// POST /signin
+// Sign in a client
 router.post('/', async (req, res) => {
     const transaction = await db.transaction();
 
@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
             email 
         }, { transaction });
 
-        await Authorization.create({ 
+        const authorization = await Authorization.create({ 
             clientId: client.id,
             role: -1,
             expiresAt: expiresAt,
@@ -34,6 +34,7 @@ router.post('/', async (req, res) => {
 
         await Credential.create({
             clientId: client.id,
+            authorizationId: authorization.id,
             username: username ? username: email,
             password: hashPassword,
         }, { transaction });
@@ -48,18 +49,39 @@ router.post('/', async (req, res) => {
         const [code, field] = handleViolations(error);
 
         res.status(code).json({ msg: `${field && field} ${error.message}` });
-        /* if (error.message === 'Password Policy Violation') {
-            res.status(402).json({ msg: error.message });
-            return;
-        }
+    }
+});
 
+// Sign out a client
+router.delete('/:id', async (req, res) => {
+    const { id } = req.params;
+    const transaction = await db.transaction();
 
-        if (UniqueViolationError) {
-            res.status(403).json({ msg: `${UniqueViolationError} already exists` });
-            return;
-        }
+    try {
+        await Credential.destroy({
+            where:{
+                clientId: id,
+            }}, { transaction});
+        
+        await Authorization.destroy({
+            where:{
+                clientId: id,
+            }}, { transaction});
+        
+        await Client.destroy({
+            where:{
+                id: id,
+            }}, { transaction});
 
-        res.status(500).json({ msg: 'internal server error' }); */
+        await transaction.commit();
+        
+        res.status(200).json({ msg: 'client successfully deleted' });
+
+    } catch (error) {
+
+        await transaction.rollback();
+
+        res.status(500).json(error);
     }
 });
 

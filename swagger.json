@@ -8,7 +8,7 @@
     "paths": {
         "/sign": {
             "post": {
-                "summary": "SignIn: create a new client",
+                "summary": "Sign in: create a new client",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -24,10 +24,82 @@
                         "description": "Client created successfully"
                     },
                     "401": {
-                        "description": "Unauthorized:\n 0 - Unique Violation (Email or Username already exists)"
+                        "description": "Unauthorized"
                     },
                     "500": {
                         "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/sign/{id}": {
+            "delete": {
+                "summary": "Sign out: delete a client by ID",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Client deleted successfully"
+                    },
+                    "404": {
+                        "description": "Client not found"
+                    }
+                }
+            }
+        },
+        "/log": {
+            "post": {
+                "summary": "Log in: Enable client access to the system",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Log"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Client created successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/log/{id}": {
+            "put": {
+                "summary": "Log out: Disable client access to the system",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Client deleted successfully"
+                    },
+                    "404": {
+                        "description": "Client not found"
                     }
                 }
             }
@@ -48,24 +120,9 @@
                                 }
                             }
                         }
-                    }
-                }
-            },
-            "post": {
-                "summary": "Create a new client",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Client"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Client created successfully"
+                    },
+                    "404": {
+                        "description": "Client not found"
                     }
                 }
             }
@@ -107,7 +164,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -129,27 +186,6 @@
                         "description": "Client not found"
                     }
                 }
-            },
-            "delete": {
-                "summary": "Delete a client by ID",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "Client deleted successfully"
-                    },
-                    "404": {
-                        "description": "Client not found"
-                    }
-                }
             }
         }
     },
@@ -159,7 +195,7 @@
                 "type": "object",
                 "properties": {
                     "id": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "name": {
                         "type": "string"
@@ -176,7 +212,7 @@
                 "type": "object",
                 "properties": {
                     "id": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "name": {
                         "type": "string"
@@ -192,6 +228,34 @@
                     },
                     "password": {
                         "type": "string"
+                    }
+                }
+            },
+            "Log": {
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Logs": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "clientId": {
+                        "type": "integer"
+                    },
+                    "type": {
+                        "type": "boolean"
                     }
                 }
             }

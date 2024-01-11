@@ -1,6 +1,6 @@
-const db = require('../../bootstrap');
+const db = require('../../../bootstrap');
 
-const Authorization = db.define('authorization', {
+const Logs = db.define('logs', {
     id: {
         type: db.Sequelize.INTEGER,
         allowNull: false,
@@ -13,14 +13,10 @@ const Authorization = db.define('authorization', {
         foreignKey: true,
         unique: true,
     },
-    role: {
-        type: db.Sequelize.INTEGER,
+    type: {
+        type: db.Sequelize.BOOLEAN,
         allowNull: false,
     },
-    expiresAt: {
-        type: db.Sequelize.DATE,
-        allowNull: true,
-    },
-});
+}, { updatedAt: false});
 
-module.exports = Authorization;
+module.exports = Logs;

@@ -2,44 +2,37 @@ const express = require('express');
 const router = express.Router();
 const Client = require('./model');
 
-// Insert a new client
-router.post('/', async (req, res) => {
-    const { name, lastname, email } = req.body;
-    await Client.create({ name, lastname, email }).then(client => {
-        res.status(200).json({status: true});
-    }).catch(err => {
-        res.status(400).json(err);
-    });
-});
-
-// Update a client
+// Update a client data
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { name, lastname, email } = req.body;
     try {
-        const client = await Client.findByIdAndUpdate(id, { name, lastname, email }, { new: true });
+        const client = await Client.update({ name, lastname, email },{
+            where: {
+                id:id
+            }
+        });
         if (client) {
             res.status(200).json({ status: true });
         } else {
             res.status(404).json({ status: false, message: 'Client not found' });
         }
-    } catch (err) {
-        res.status(400).json(err);
+    } catch (error) {
+        res.status(400).json({ msg: error.message });
     }
 });
 
-// Delete a client
-router.delete('/:id', async (req, res) => {
-    const { id } = req.params;
+// Get client by id
+router.get('/:id', async (req, res) => {
     try {
-        const client = await Client.findByIdAndDelete(id);
-        if (client) {
-            res.status(200).json({ status: true });
-        } else {
-            res.status(404).json({ status: false, message: 'Client not found' });
-        }
-    } catch (err) {
-        res.status(400).json(err);
+        const client = await Client.findAll({
+            where: {
+                id: req.params.id
+            }
+        });
+        res.status(200).json(client);
+    } catch (error) {
+        res.status(404).json({ msg: error.message});
     }
 });
 
@@ -48,8 +41,8 @@ router.get('/', async (req, res) => {
     try {
         const clients = await Client.findAll();
         res.status(200).json(clients);
-    } catch (err) {
-        res.status(400).json(err);
+    } catch (error) {
+        res.status(400).json({ msg: error.message });
     }
 });
 
