@@ -14,7 +14,7 @@ const Credential = db.define('credential', {
     },
     username: {
         type: db.Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
     },
     password: {
         type: db.Sequelize.STRING,

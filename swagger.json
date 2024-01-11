@@ -6,6 +6,32 @@
         "description": "API documentation for client management"
     },
     "paths": {
+        "/sign": {
+            "post": {
+                "summary": "SignIn: create a new client",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Sign"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Client created successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized:\n 0 - Unique Violation (Email or Username already exists)"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/clients": {
             "get": {
                 "summary": "Get all clients",
@@ -142,6 +168,29 @@
                         "type": "string"
                     },
                     "email": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Sign": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "lastname": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
                         "type": "string"
                     }
                 }
