@@ -4,6 +4,7 @@ Dockerfile*
 docker-compose*
 README.md
 LICENSE
+.env
 .gitignore
 .vscode
 .git

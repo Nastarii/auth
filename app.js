@@ -1,34 +1,26 @@
 const express = require('express');
+
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
+
+const clientRouter = require('./core/clients/routes');
+const signRouter = require('./core/authentication/sign/routes');
+
 const app = express();
-
-const { Sequelize } = require('sequelize');
-
-const HOST = process.env.HOST || '127.0.0.1';
 
 const PORT = process.env.PORT || 5000;
 
-const sequelize = new Sequelize(
-  process.env.MYSQL_DATABASE, 
-  process.env.MYSQL_USER, 
-  process.env.MYSQL_PASSWORD, {
-  host: HOST,
-  dialect: 'mysql'
-});
+app.use(express.json());
 
-const checkConnection = async () => {
-  await sequelize.authenticate().then(() => {
-    console.log('✔ Connection has been established successfully.');
-  }).catch(err => {
-    console.error('❌ Unable to connect to the database:', err);
-  });
-}
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-checkConnection()
+app.use('/clients', clientRouter);
+app.use('/sign', signRouter);
 
 app.get('/', (req, res) => {
-  res.send('🚀 Well Done your app is working!')
+  res.send('✨ Well Done your app is on!')
 })
 
 app.listen(PORT, () => {
-  console.log(`🚀 App listening on port ${PORT}`)
+  console.log(`🚀 App listening on port ${PORT}, available at http://${process.env.DOMAIN}:${PORT}`)
 })

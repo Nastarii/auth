@@ -12,7 +12,7 @@ services:
   backend:
     depends_on:
       - mysqldb
-    container_name: auth-backend
+    container_name: node-backend
     build: .
     volumes:
       - .:/usr/src/app
