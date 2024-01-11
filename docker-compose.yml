@@ -14,12 +14,14 @@ services:
       - mysqldb
     container_name: node-backend
     build: .
+    command: npm run debug
     volumes:
       - .:/usr/src/app
     env_file:
       - ./.env
     ports:
       - $PORT:$PORT
+      - 9229:9229
     extra_hosts:
       - "host.docker.internal:host-gateway"
   

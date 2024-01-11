@@ -18,7 +18,7 @@ app.use('/clients', clientRouter);
 app.use('/sign', signRouter);
 
 app.get('/', (req, res) => {
-  res.send('✨ Well Done your app is on!')
+  res.send('✨ Well Done your app is up!')
 })
 
 app.listen(PORT, () => {
