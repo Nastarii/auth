@@ -7,9 +7,10 @@ const Logs = require('./model');
 * @param type - Login | Logout
 * @param attempt - Success | Failure
 */
-async function handleLogs(id, type, attempt){
+async function handleLogs(id, ip, type, attempt){
     await Logs.create({
         clientId: id,
+        ip: ip,
         type: type,
         attempt: attempt
     }).catch(

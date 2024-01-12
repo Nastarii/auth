@@ -12,6 +12,10 @@ const Logs = db.define('logs', {
         allowNull: true,
         foreignKey: true,
     },
+    ip: {
+        type: db.Sequelize.STRING,
+        allowNull: false
+    },
     type: {
         type: db.Sequelize.BOOLEAN,
         allowNull: false,

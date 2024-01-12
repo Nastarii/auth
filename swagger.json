@@ -242,6 +242,9 @@
                     },
                     "password": {
                         "type": "string"
+                    },
+                    "ip": {
+                        "type": "string"
                     }
                 }
             },
@@ -254,7 +257,13 @@
                     "clientId": {
                         "type": "integer"
                     },
+                    "ip": {
+                        "type": "string"
+                    },
                     "type": {
+                        "type": "boolean"
+                    },
+                    "attempt": {
                         "type": "boolean"
                     }
                 }

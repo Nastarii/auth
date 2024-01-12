@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const sendEmail = require('../email/service');
 
 /*
 * Handle server response when unique constraint is violated
@@ -8,6 +9,8 @@ const bcrypt = require('bcryptjs');
 function handleViolations(error) {
     if(error.message === 'Password Policy Violation') {
         return [401, null];
+    } else if (error.message === 'Email Policy Violation') {
+        return [401, null]
     } else if (error.message === 'Validation error') {
         const fields = Object.keys(error.fields);
         const field = (fields.length > 0) ? fields[0] : null;
@@ -42,7 +45,17 @@ function hashPassword(password) {
     return bcrypt.hashSync(password, salt);
 }
 
+function handleEmailPolicy(id, email) {
+    const emailRegex = /^[a-z0-9.]+@[a-z0-9]+\.[a-z]+\.([a-z]+)?$/i;
+    const match = emailRegex.test(email);
+    if (!match) {
+        throw new Error('Email Policy Violation');
+    }
+
+}
+
 module.exports = {
     handleViolations,
-    handlePasswordPolicy
+    handlePasswordPolicy,
+    handleEmailPolicy
 };

@@ -13,8 +13,11 @@ const { handlePasswordPolicy, handleViolations, handleLogs } = require('./contro
 router.post('/', async (req, res) => {
     const transaction = await db.transaction();
     let clientId = null;
+    let attemptIp = null;
+
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password, ip } = req.body;
+        attemptIp = ip;
 
         const client = await Client.findAll({
             where: {
@@ -37,7 +40,7 @@ router.post('/', async (req, res) => {
         handlePasswordPolicy(password, hashedPassword);
 
         await transaction.commit();
-        await handleLogs(clientId, true, true);
+        await handleLogs(clientId, attemptIp, true, true);
 
         const token = jwt.sign(
             { id:  clientId },
@@ -49,7 +52,7 @@ router.post('/', async (req, res) => {
 
     } catch (error) {
         await transaction.rollback();
-        await handleLogs(clientId, true, false);
+        await handleLogs(clientId, attemptIp, true, false);
         const code = handleViolations(error);
 
         res.status(code).json({ msg: error.message });
