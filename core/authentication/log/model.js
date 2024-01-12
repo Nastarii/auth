@@ -9,14 +9,17 @@ const Logs = db.define('logs', {
     },
     clientId: {
         type: db.Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         foreignKey: true,
-        unique: true,
     },
     type: {
         type: db.Sequelize.BOOLEAN,
         allowNull: false,
     },
+    attempt: {
+        type: db.Sequelize.BOOLEAN,
+        allowNull: false
+    }
 }, { updatedAt: false});
 
 module.exports = Logs;

@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+
+var jwt = require('jsonwebtoken');
 const db = require('../../../bootstrap');
 
 const Client = require('../../clients/model');
@@ -41,7 +43,13 @@ router.post('/', async (req, res) => {
 
         await transaction.commit();
 
-        res.status(200).json({ msg: 'client successfully created' });
+        const token = jwt.sign(
+            { id:  client.id },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' },
+        )
+
+        res.status(200).json({ msg: 'client successfully created', token: token });
 
     } catch (error) {
         await transaction.rollback();

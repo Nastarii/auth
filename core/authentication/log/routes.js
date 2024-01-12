@@ -1,39 +1,64 @@
 const express = require('express');
 const router = express.Router();
+
+var jwt = require('jsonwebtoken');
 const db = require('../../../bootstrap');
 
 const Client = require('../../clients/model');
 const Credential = require('../../credential/model');
-const Authorization = require('../../authorization/model');
 
+const { handlePasswordPolicy, handleViolations, handleLogs } = require('./controller');
 
 // Log in a client
 router.post('/', async (req, res) => {
     const transaction = await db.transaction();
-
+    let clientId = null;
     try {
         const { username, email, password } = req.body;
 
-        handlePasswordPolicy(password);
+        const client = await Client.findAll({
+            where: {
+                email: email
+            }
+        });
 
-        // TODO: Logic to create a client JWT
+        if (client.length === 0) {
+            throw new Error('Email not found');
+        }
+
+        clientId = client[0].id
+        const credential = await Credential.findAll({
+            where: {
+                clientId
+            }
+        })
+        
+        const hashedPassword = credential[0].password;
+        handlePasswordPolicy(password, hashedPassword);
 
         await transaction.commit();
+        await handleLogs(clientId, true, true);
 
-        res.status(200).json({ msg: 'client successfully logged' });
+        const token = jwt.sign(
+            { id:  clientId },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' },
+        )
+
+        res.status(200).json({ msg: 'client successfully logged', token: token });
 
     } catch (error) {
         await transaction.rollback();
+        await handleLogs(clientId, true, false);
+        const code = handleViolations(error);
 
-        const [code, field] = handleViolations(error);
-
-        res.status(code).json({ msg: `${field && field} ${error.message}` });
+        res.status(code).json({ msg: error.message });
     }
 });
 
 // Log out a client
 router.put('/:id', async (req, res) => {
-    // TODO: Logic to expire a client JWT
+    // TODO: Logic to disable a client JWT
 });
 
 module.exports = router;
