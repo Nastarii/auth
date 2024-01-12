@@ -67,3 +67,7 @@ you can use node with mysql docker image or the normal version
 Currently, the project is still in progress, and we regret to inform you that it is not yet complete. 
 
 Our current estimate is that the project will be ready for launch by the end of January. 
+
+### Database Schemas
+
+![Alt text](doc/imgs/schemas.png)
