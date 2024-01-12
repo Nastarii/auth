@@ -71,3 +71,7 @@ Our current estimate is that the project will be ready for launch by the end of 
 ### Database Schemas
 
 ![Alt text](doc/imgs/schemas.png)
+
+### Flow execution logic
+
+![Alt text](doc/imgs/flowchart.png)
