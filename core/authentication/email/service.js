@@ -1,4 +1,29 @@
 const nodemailer = require('nodemailer');
+var fs = require('fs');
+
+function addOptionIntoTemplate(html, options) {
+    let emailHTML = html;
+
+    for (const key in options) {
+        if (options.hasOwnProperty(key)) {
+            const value = options[key];
+            const regex = new RegExp(`{{${key}}}`, 'g');
+            emailHTML = emailHTML.replace(regex, value);
+        }
+    }
+
+    return emailHTML;
+}
+
+function getEmailTemplate(templateFilename, options) {
+    const templatePath  = `${__dirname}\\templates\\${templateFilename}`
+    if (fs.existsSync(templatePath)) {
+        var data = fs.readFileSync(templatePath, "utf8");
+        return addOptionIntoTemplate(data,options);
+    } else {
+        throw new Error('Failed to Read Template File');
+    }
+}
 
 async function sendEmail(mailCustomOptions) {
     const transporter = nodemailer.createTransport({
@@ -21,4 +46,7 @@ async function sendEmail(mailCustomOptions) {
     return await transporter.sendMail({ ...mailDefaultOptions, ...mailCustomOptions});
 }
 
-module.exports = sendEmail;
+module.exports = {
+    sendEmail,
+    getEmailTemplate
+};

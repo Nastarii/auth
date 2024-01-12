@@ -8,7 +8,11 @@ const Client = require('../../clients/model');
 const Credential = require('../../credential/model');
 const Authorization = require('../../authorization/model');
 
-const { handleViolations, handlePasswordPolicy, handleEmailPolicy } = require('./controller');
+const { 
+    handleViolations, 
+    handlePasswordPolicy, 
+    handleEmailPolicy, 
+} = require('./controller');
 
 // Sign in a client
 router.post('/', async (req, res) => {
@@ -41,17 +45,14 @@ router.post('/', async (req, res) => {
             password: hashPassword,
         }, { transaction });
 
+        //const activationCode = generateActivationCode();
+    
         await handleEmailPolicy(client.id, email);
 
-        const token = jwt.sign(
-            { id:  client.id },
-            process.env.JWT_SECRET,
-            { expiresIn: '7d' },
-        )
 
         await transaction.commit();
 
-        res.status(200).json({ msg: 'client successfully created', token: token });
+        res.status(200).json({ msg: 'client successfully created' });
 
     } catch (error) {
         await transaction.rollback();

@@ -6,7 +6,8 @@ const swaggerDocument = require('./swagger.json');
 const clientRouter = require('./core/clients/routes');
 const signRouter = require('./core/authentication/sign/routes');
 const logRouter = require('./core/authentication/log/routes');
-const sendEmail = require('./core/authentication/email/service');
+
+const initConfig = require('./core/init');
 
 const app = express();
 
@@ -20,21 +21,11 @@ app.use('/clients', clientRouter);
 app.use('/sign', signRouter);
 app.use('/log', logRouter);
 
-app.get('/', async (req, res) => {
-  const successMsg = '📨 Your SMTP settings are properly configured!';
-  let success = true;
-  const sentMail = await sendEmail({
-    to:process.env.SMTP_USER,
-    subject: 'Settings Verification ✔',
-    text: successMsg,
-  }).catch(error => {
-    console.log(error)
-    success = false;
-  });
-  const mailMessage = (sentMail.accepted.length > 0 && success) ? successMsg : '📩 Your SMTP failed!';
-  res.send(`✨ Well Done your app is up!\n${mailMessage}`)
+app.get('/', (req, res) => {
+  res.send(`✨ Well Done your app is up!`)
 })
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 App listening on port ${PORT}, available at http://${process.env.DOMAIN}:${PORT}`)
+  await initConfig();
 })

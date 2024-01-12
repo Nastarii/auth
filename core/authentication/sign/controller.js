@@ -1,6 +1,16 @@
 const bcrypt = require('bcryptjs');
-const sendEmail = require('../email/service');
+const jwt = require('jsonwebtoken');
+const { sendEmail, getEmailTemplate } = require('../email/service');
 
+function pad(str, length) {
+    const rest = length - String(str).length;
+    return '0'.repeat(rest > 0 ? rest : '0') + str;
+  }
+
+function generateActivationCode() {
+    var random = Math.floor(Math.random() * 10000);
+    return pad(random, 4);
+}
 /*
 * Handle server response when unique constraint is violated
 * @param {json} error - Error object
@@ -45,17 +55,33 @@ function hashPassword(password) {
     return bcrypt.hashSync(password, salt);
 }
 
-function handleEmailPolicy(id, email) {
-    const emailRegex = /^[a-z0-9.]+@[a-z0-9]+\.[a-z]+\.([a-z]+)?$/i;
+async function handleEmailPolicy(id, email) {
+    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
     const match = emailRegex.test(email);
     if (!match) {
         throw new Error('Email Policy Violation');
     }
 
+    const token = jwt.sign(
+        { id:  id },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' },
+    )
+    const templateHTML = getEmailTemplate('confirmationEmail.html', { 
+        token: token, 
+        domain: process.env.DOMAIN 
+    });
+
+    await sendEmail({
+        to: email,
+        subject: `${process.env.NAME} Confirmation Email`,
+        html: templateHTML
+    });
 }
 
 module.exports = {
     handleViolations,
     handlePasswordPolicy,
-    handleEmailPolicy
+    handleEmailPolicy,
+    generateActivationCode
 };
