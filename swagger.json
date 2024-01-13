@@ -3,11 +3,14 @@
     "info": {
         "title": "Authentication API",
         "version": "1.0.0",
-        "description": "API documentation for client management"
+        "description": "The authentication API designed for this project follows a microservices architecture, leveraging the Node.js runtime environment, MySQL database, and Docker containerization for its implementation. The modular structure of the microservices facilitates flexibility and maintainability, allowing for seamless integration with other services within the larger system. Engineered to deliver robust, scalable, and secure authentication services within a microservices architecture."
     },
     "paths": {
         "/sign/in": {
             "post": {
+                "tags": [
+                    "Registration Control"
+                ],
                 "summary": "Sign in: create a new client",
                 "requestBody": {
                     "required": true,
@@ -34,6 +37,9 @@
         },
         "/sign/out/{id}": {
             "delete": {
+                "tags": [
+                    "Registration Control"
+                ],
                 "summary": "Sign out: delete a client by ID",
                 "parameters": [
                     {
@@ -57,6 +63,9 @@
         },
         "/email/resend": {
             "post": {
+                "tags": [
+                    "Client Validation"
+                ],
                 "summary": "Resend Confirmation Email to verify a client",
                 "requestBody": {
                     "required": true,
@@ -80,6 +89,9 @@
         },
         "/email/recover": {
             "post": {
+                "tags": [
+                    "Client Validation"
+                ],
                 "summary": "Recover a client password by Email",
                 "requestBody": {
                     "required": true,
@@ -103,8 +115,10 @@
         },
         "/email/verify": {
             "get": {
-                
-                "summary": "Verify a client by ID",
+                "tags": [
+                    "Client Validation"
+                ],
+                "summary": "Verify a client by token",
                 "parameters": [
                     {
                         "name": "token",
@@ -125,8 +139,37 @@
                 }
             }
         },
+        "/email/verify/activationCode": {
+            "post": {
+                "tags": [
+                    "Client Validation"
+                ],
+                "summary": "Verify a client by activation code",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Activation Code"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Client verified successfully"
+                    },
+                    "404": {
+                        "description": "Client not found"
+                    }
+                }
+            }
+        },
         "/log/in": {
             "post": {
+                "tags": [
+                    "Access Control"
+                ],
                 "summary": "Log in: Enable client access to the system",
                 "requestBody": {
                     "required": true,
@@ -153,6 +196,9 @@
         },
         "/log/out/{id}": {
             "put": {
+                "tags": [
+                    "Access Control"
+                ],
                 "summary": "Log out: Disable client access to the system",
                 "parameters": [
                     {
@@ -176,6 +222,9 @@
         },
         "/clients": {
             "get": {
+                "tags": [
+                    "Protected Routes"
+                ],
                 "summary": "Get all clients",
                 "responses": {
                     "200": {
@@ -199,6 +248,9 @@
         },
         "/clients/{id}": {
             "get": {
+                "tags": [
+                    "Protected Routes"
+                ],
                 "summary": "Get a client by ID",
                 "parameters": [
                     {
@@ -227,6 +279,9 @@
                 }
             },
             "put": {
+                "tags": [
+                    "Protected Routes"
+                ],
                 "summary": "Update a client by ID",
                 "parameters": [
                     {
@@ -302,6 +357,14 @@
                 "type": "object",
                 "properties": {
                     "email": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Activation Code": {
+                "type": "object",
+                "properties": {
+                    "activationCode": {
                         "type": "string"
                     }
                 }
