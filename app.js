@@ -4,8 +4,9 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 
 const clientRouter = require('./core/clients/routes');
-const signRouter = require('./core/authentication/sign/routes');
 const logRouter = require('./core/authentication/log/routes');
+const signRouter = require('./core/authentication/sign/routes');
+const emailRouter = require('./core/authentication/email/routes');
 
 const initConfig = require('./core/init');
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use('/clients', clientRouter);
+app.use('/email', emailRouter);
 app.use('/sign', signRouter);
 app.use('/log', logRouter);
 

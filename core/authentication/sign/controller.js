@@ -63,9 +63,9 @@ async function handleEmailPolicy(id, email) {
     }
 
     const token = jwt.sign(
-        { id:  id },
+        { id:  id, type: 0 },
         process.env.JWT_SECRET,
-        { expiresIn: '7d' },
+        { expiresIn: '10m' },
     )
     const templateHTML = getEmailTemplate('confirmationEmail.html', { 
         token: token, 

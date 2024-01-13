@@ -21,8 +21,11 @@ async function handleLogs(id, ip, type, attempt){
 }
 
 function handleViolations(error) {
-    if (error.message === 'Wrong Password') {
+    if (error.message === 'Wrong Password' || error.message === 'Client email not verified') {
         return 401;
+    }
+    else if(error.message === 'Email not found') {
+        return 404;
     } else {
         return 500;
     }

@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 
 var jwt = require('jsonwebtoken');
-const db = require('../../../bootstrap');
 
 const Client = require('../../clients/model');
 const Credential = require('../../credential/model');
@@ -10,8 +9,7 @@ const Credential = require('../../credential/model');
 const { handlePasswordPolicy, handleViolations, handleLogs } = require('./controller');
 
 // Log in a client
-router.post('/', async (req, res) => {
-    const transaction = await db.transaction();
+router.post('/in', async (req, res) => {
     let clientId = null;
     let attemptIp = null;
 
@@ -29,21 +27,24 @@ router.post('/', async (req, res) => {
             throw new Error('Email not found');
         }
 
-        clientId = client[0].id
+        if (!client[0].active) {
+            throw new Error('Client email not verified');
+        }
+
+        clientId = client[0].id;
         const credential = await Credential.findAll({
             where: {
                 clientId
             }
-        })
+        });
         
         const hashedPassword = credential[0].password;
         handlePasswordPolicy(password, hashedPassword);
 
-        await transaction.commit();
         await handleLogs(clientId, attemptIp, true, true);
 
         const token = jwt.sign(
-            { id:  clientId },
+            { id:  clientId, type: 2 },
             process.env.JWT_SECRET,
             { expiresIn: '7d' },
         )
@@ -51,7 +52,7 @@ router.post('/', async (req, res) => {
         res.status(200).json({ msg: 'client successfully logged', token: token });
 
     } catch (error) {
-        await transaction.rollback();
+
         await handleLogs(clientId, attemptIp, true, false);
         const code = handleViolations(error);
 
@@ -60,7 +61,7 @@ router.post('/', async (req, res) => {
 });
 
 // Log out a client
-router.put('/:id', async (req, res) => {
+router.put('/out/:id', async (req, res) => {
     // TODO: Logic to disable a client JWT
 });
 

@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-var jwt = require('jsonwebtoken');
 const db = require('../../../bootstrap');
 
 const Client = require('../../clients/model');
@@ -15,7 +14,7 @@ const {
 } = require('./controller');
 
 // Sign in a client
-router.post('/', async (req, res) => {
+router.post('/in', async (req, res) => {
     const transaction = await db.transaction();
 
     try {
@@ -29,12 +28,12 @@ router.post('/', async (req, res) => {
         const client = await Client.create({ 
             name, 
             lastname, 
-            email 
+            email,
         }, { transaction });
 
         const authorization = await Authorization.create({ 
             clientId: client.id,
-            role: -1,
+            role: 1,
             expiresAt: expiresAt,
         }, { transaction });
 
@@ -64,7 +63,7 @@ router.post('/', async (req, res) => {
 });
 
 // Sign out a client
-router.delete('/:id', async (req, res) => {
+router.delete('/out/:id', async (req, res) => {
     const { id } = req.params;
     const transaction = await db.transaction();
 

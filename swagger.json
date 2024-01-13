@@ -6,7 +6,7 @@
         "description": "API documentation for client management"
     },
     "paths": {
-        "/sign": {
+        "/sign/in": {
             "post": {
                 "summary": "Sign in: create a new client",
                 "requestBody": {
@@ -32,7 +32,7 @@
                 }
             }
         },
-        "/sign/{id}": {
+        "/sign/out/{id}": {
             "delete": {
                 "summary": "Sign out: delete a client by ID",
                 "parameters": [
@@ -55,7 +55,31 @@
                 }
             }
         },
-        "/log": {
+        "/email/verify": {
+            "get": {
+                
+                "summary": "Verify a client by ID",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Client verified successfully"
+                    },
+                    "404": {
+                        "description": "Client not found"
+                    }
+                }
+            }
+        },
+        "/log/in": {
             "post": {
                 "summary": "Log in: Enable client access to the system",
                 "requestBody": {
@@ -81,7 +105,7 @@
                 }
             }
         },
-        "/log/{id}": {
+        "/log/out/{id}": {
             "put": {
                 "summary": "Log out: Disable client access to the system",
                 "parameters": [
