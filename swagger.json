@@ -79,6 +79,29 @@
                 }
             }
         },
+        "/email/recover": {
+            "post": {
+                "summary": "Recover a client password by Email",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecoverPassword"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Client recovered successfully"
+                    },
+                    "404": {
+                        "description": "Client not found"
+                    }
+                }
+            }
+        },
         "/log/in": {
             "post": {
                 "summary": "Log in: Enable client access to the system",
@@ -268,6 +291,14 @@
                         "type": "string"
                     },
                     "ip": {
+                        "type": "string"
+                    }
+                }
+            },
+            "RecoverPassword": {
+                "type": "object",
+                "properties": {
+                    "email": {
                         "type": "string"
                     }
                 }

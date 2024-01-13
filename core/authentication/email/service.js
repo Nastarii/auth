@@ -16,7 +16,14 @@ function addOptionIntoTemplate(html, options) {
 }
 
 function getEmailTemplate(templateFilename, options) {
-    const templatePath  = `${__dirname}\\templates\\${templateFilename}`
+    let templatePath = null;
+    
+    if(process.platform === "win32") {
+        templatePath  = `${__dirname}\\templates\\${templateFilename}`
+    } else {
+        templatePath  = `${__dirname}/templates/${templateFilename}`
+    }
+
     if (fs.existsSync(templatePath)) {
         var data = fs.readFileSync(templatePath, "utf8");
         return addOptionIntoTemplate(data,options);

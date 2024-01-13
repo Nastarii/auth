@@ -2,14 +2,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { sendEmail, getEmailTemplate } = require('../email/service');
 
-function pad(str, length) {
-    const rest = length - String(str).length;
-    return '0'.repeat(rest > 0 ? rest : '0') + str;
-  }
-
 function generateActivationCode() {
     var random = Math.floor(Math.random() * 10000);
-    return pad(random, 4);
+    const pad = 4 - String(random).length;
+    return '0'.repeat(pad > 0 ? pad : '0') + random;
 }
 /*
 * Handle server response when unique constraint is violated
