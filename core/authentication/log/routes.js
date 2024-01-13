@@ -7,6 +7,7 @@ const Client = require('../../clients/model');
 const Credential = require('../../credential/model');
 
 const { handlePasswordPolicy, handleViolations, handleLogs } = require('./controller');
+const { handleAccessTokenPolicy } = require('../jwt/service');
 
 // Log in a client
 router.post('/in', async (req, res) => {
@@ -47,7 +48,7 @@ router.post('/in', async (req, res) => {
             { id:  clientId, type: 2 },
             process.env.JWT_SECRET,
             { expiresIn: '7d' },
-        )
+        );
 
         res.status(200).json({ msg: 'client successfully logged', token: token });
 
@@ -61,8 +62,25 @@ router.post('/in', async (req, res) => {
 });
 
 // Log out a client
-router.put('/out/:id', async (req, res) => {
-    // TODO: Logic to disable a client JWT
+router.get('/out', async (req, res) => {
+    try {
+        const tokenData = await handleAccessTokenPolicy(req);
+        const client = await Client.findAll({
+            where: {
+                id: tokenData.id
+            }
+        });
+
+        if (client.length === 0) {
+            throw new Error('Client not found');
+        }
+        if (!client[0].active) {
+            throw new Error('Client email not verified');
+        }
+        res.status(200).json({ msg: 'client successfully logged out' });
+    } catch(error) {
+        res.status(400).json({ msg: error.message });
+    }
 });
 
 module.exports = router;

@@ -194,22 +194,18 @@
                 }
             }
         },
-        "/log/out/{id}": {
-            "put": {
+        "/log/out": {
+            "get": {
+                "security": [
+                    {
+                       "bearerAuth": []
+                    }
+                 ],
                 "tags": [
-                    "Access Control"
+                    "Access Control",
+                    "Protected Routes"
                 ],
                 "summary": "Log out: Disable client access to the system",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
                 "responses": {
                     "204": {
                         "description": "Client deleted successfully"
@@ -225,20 +221,15 @@
                 "tags": [
                     "Protected Routes"
                 ],
+                "security": [
+                    {
+                       "bearerAuth": []
+                    }
+                 ],
                 "summary": "Get all clients",
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Client"
-                                    }
-                                }
-                            }
-                        }
+                        "description": "Successful operation"
                     },
                     "404": {
                         "description": "Client not found"
@@ -251,6 +242,11 @@
                 "tags": [
                     "Protected Routes"
                 ],
+                "security": [
+                    {
+                       "bearerAuth": []
+                    }
+                 ],
                 "summary": "Get a client by ID",
                 "parameters": [
                     {
@@ -264,14 +260,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Client"
-                                }
-                            }
-                        }
+                        "description": "Successful operation"
                     },
                     "404": {
                         "description": "Client not found"
@@ -282,6 +271,11 @@
                 "tags": [
                     "Protected Routes"
                 ],
+                "security": [
+                    {
+                       "bearerAuth": []
+                    }
+                 ],
                 "summary": "Update a client by ID",
                 "parameters": [
                     {
@@ -298,7 +292,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Client"
+                                "$ref": "#/components/schemas/Sign In"
                             }
                         }
                     }
@@ -315,6 +309,13 @@
         }
     },
     "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+              "type": "http",
+              "scheme": "bearer",
+              "bearerFormat": "JWT"
+            }
+        },
         "schemas": {
             "Sign In": {
                 "type": "object",

@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const Client = require('./model');
+const { handleAccessTokenPolicy } = require('../authentication/jwt/service');
 
 // Update a client data
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { name, lastname, email } = req.body;
     try {
+        const tokenData = await handleAccessTokenPolicy(req);
         const client = await Client.update({ name, lastname, email },{
             where: {
                 id:id
@@ -25,6 +27,7 @@ router.put('/:id', async (req, res) => {
 // Get client by id
 router.get('/:id', async (req, res) => {
     try {
+        const tokenData = await handleAccessTokenPolicy(req);
         const client = await Client.findAll({
             where: {
                 id: req.params.id
@@ -38,7 +41,9 @@ router.get('/:id', async (req, res) => {
 
 // Get all clients
 router.get('/', async (req, res) => {
+
     try {
+        const tokenData = await handleAccessTokenPolicy(req);
         const clients = await Client.findAll();
         res.status(200).json(clients);
     } catch (error) {
