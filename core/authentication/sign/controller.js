@@ -2,11 +2,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { sendEmail, getEmailTemplate } = require('../email/service');
 
-function generateActivationCode() {
-    var random = Math.floor(Math.random() * 10000);
-    const pad = 4 - String(random).length;
-    return '0'.repeat(pad > 0 ? pad : '0') + random;
-}
 /*
 * Handle server response when unique constraint is violated
 * @param {json} error - Error object
@@ -78,6 +73,5 @@ async function handleEmailPolicy(id, email) {
 module.exports = {
     handleViolations,
     handlePasswordPolicy,
-    handleEmailPolicy,
-    generateActivationCode
+    handleEmailPolicy
 };

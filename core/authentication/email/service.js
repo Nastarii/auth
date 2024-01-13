@@ -1,18 +1,13 @@
 const nodemailer = require('nodemailer');
 var fs = require('fs');
 
-function addOptionIntoTemplate(html, options) {
-    let emailHTML = html;
-
-    for (const key in options) {
-        if (options.hasOwnProperty(key)) {
-            const value = options[key];
-            const regex = new RegExp(`{{${key}}}`, 'g');
-            emailHTML = emailHTML.replace(regex, value);
-        }
+function generateActivationCode() {
+    const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let activationCode = '';
+    for (let i = 0; i < 6; i++) {
+        activationCode += characters.charAt(Math.floor(Math.random() * characters.length));
     }
-
-    return emailHTML;
+    return activationCode;
 }
 
 function getEmailTemplate(templateFilename, options) {
@@ -25,8 +20,17 @@ function getEmailTemplate(templateFilename, options) {
     }
 
     if (fs.existsSync(templatePath)) {
-        var data = fs.readFileSync(templatePath, "utf8");
-        return addOptionIntoTemplate(data,options);
+        let html = fs.readFileSync(templatePath, "utf8");
+        for (const key in options) {
+            if (options.hasOwnProperty(key)) {
+                const value = options[key];
+                const regex = new RegExp(`{{${key}}}`, 'g');
+                html = html.replace(regex, value);
+            }
+        }
+    
+        return html;
+
     } else {
         throw new Error('Failed to Read Template File');
     }
@@ -55,5 +59,6 @@ async function sendEmail(mailCustomOptions) {
 
 module.exports = {
     sendEmail,
-    getEmailTemplate
+    getEmailTemplate,
+    generateActivationCode
 };

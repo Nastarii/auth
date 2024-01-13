@@ -14,7 +14,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Sign"
+                                "$ref": "#/components/schemas/Sign In"
                             }
                         }
                     }
@@ -55,6 +55,52 @@
                 }
             }
         },
+        "/email/resend": {
+            "post": {
+                "summary": "Resend Confirmation Email to verify a client",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Email"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Client recovered successfully"
+                    },
+                    "404": {
+                        "description": "Client not found"
+                    }
+                }
+            }
+        },
+        "/email/recover": {
+            "post": {
+                "summary": "Recover a client password by Email",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Email"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Client recovered successfully"
+                    },
+                    "404": {
+                        "description": "Client not found"
+                    }
+                }
+            }
+        },
         "/email/verify": {
             "get": {
                 
@@ -79,29 +125,6 @@
                 }
             }
         },
-        "/email/recover": {
-            "post": {
-                "summary": "Recover a client password by Email",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RecoverPassword"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Client recovered successfully"
-                    },
-                    "404": {
-                        "description": "Client not found"
-                    }
-                }
-            }
-        },
         "/log/in": {
             "post": {
                 "summary": "Log in: Enable client access to the system",
@@ -110,7 +133,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Log"
+                                "$ref": "#/components/schemas/Log in"
                             }
                         }
                     }
@@ -238,29 +261,9 @@
     },
     "components": {
         "schemas": {
-            "Client": {
+            "Sign In": {
                 "type": "object",
                 "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "lastname": {
-                        "type": "string"
-                    },
-                    "email": {
-                        "type": "string"
-                    }
-                }
-            },
-            "Sign": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
                     "name": {
                         "type": "string"
                     },
@@ -278,7 +281,7 @@
                     }
                 }
             },
-            "Log": {
+            "Log in": {
                 "type": "object",
                 "properties": {
                     "username": {
@@ -295,31 +298,11 @@
                     }
                 }
             },
-            "RecoverPassword": {
+            "Email": {
                 "type": "object",
                 "properties": {
                     "email": {
                         "type": "string"
-                    }
-                }
-            },
-            "Logs": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "clientId": {
-                        "type": "integer"
-                    },
-                    "ip": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "type": "boolean"
-                    },
-                    "attempt": {
-                        "type": "boolean"
                     }
                 }
             }
