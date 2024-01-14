@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const bcrypt = require('bcryptjs');
 var fs = require('fs');
 
 function generateActivationCode() {
@@ -8,6 +9,17 @@ function generateActivationCode() {
         activationCode += characters.charAt(Math.floor(Math.random() * characters.length));
     }
     return activationCode;
+}
+
+function generateRandomPassword() {
+    const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let newPassword = '';
+    for (let i = 0; i < 6; i++) {
+        newPassword += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    const salt = bcrypt.genSaltSync(10);
+    const newHashedPassword = bcrypt.hashSync(newPassword, salt);
+    return {newPassword, newHashedPassword};
 }
 
 function getEmailTemplate(templateFilename, options) {
@@ -60,5 +72,6 @@ async function sendEmail(mailCustomOptions) {
 module.exports = {
     sendEmail,
     getEmailTemplate,
-    generateActivationCode
+    generateActivationCode,
+    generateRandomPassword
 };

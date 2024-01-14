@@ -33,15 +33,6 @@ function handlePasswordPolicy(password) {
     if (!match) {
         throw new Error('Password Policy Violation');
     }
-    return hashPassword(password);
-}
-
-/*
-* Encrypting clients passwords
-* @param {string} password - User Password
-* @return {string} - hashed password
-*/
-function hashPassword(password) {
     const salt = bcrypt.genSaltSync(10);
     return bcrypt.hashSync(password, salt);
 }

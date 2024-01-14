@@ -4,8 +4,9 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 
 const Client = require('../../clients/model');
+const Credential = require('../../credential/model');
 
-const { sendEmail, getEmailTemplate, generateActivationCode } = require('./service');
+const { sendEmail, getEmailTemplate, generateActivationCode, generateRandomPassword } = require('./service');
 const { handleAccessTokenPolicy } = require('../jwt/service');
 
 router.post('/resend', async (req, res) => {
@@ -36,6 +37,7 @@ router.post('/resend', async (req, res) => {
         const templateHTML = getEmailTemplate('confirmationEmail.html', { 
             token: token,
             port: process.env.PORT,
+            name: process.env.NAME,
             domain: process.env.DOMAIN 
         });
     
@@ -80,6 +82,8 @@ router.post('/recover', async (req, res) => {
 
         const templateHTML = getEmailTemplate('recoverPassEmail.html', { 
             activationCode: activationCode,
+            port: process.env.PORT,
+            name: process.env.NAME,
             domain: process.env.DOMAIN 
         });
     
@@ -105,7 +109,15 @@ router.post('/verify/activationCode', async (req, res) => {
         if (tokenData.activationCode !== activationCode) {
             throw new Error('Wrong activation code provided');
         }
-        res.status(200).json({ msg: 'activation code successfully verified' });
+
+        const {newPassword, newHashedPassword} = generateRandomPassword();
+        await Credential.update({ password: newHashedPassword },{
+            where: {
+                clientId: tokenData.id
+            }
+        });
+
+        res.status(200).json({ msg: 'activation code successfully verified', newPassword: newPassword });
 
     } catch (error) {
 

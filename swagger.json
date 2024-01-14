@@ -225,7 +225,7 @@
                        "bearerAuth": []
                     }
                  ],
-                "summary": "Get all clients",
+                "summary": "Get a client by ID",
                 "responses": {
                     "200": {
                         "description": "Successful operation"
@@ -236,36 +236,7 @@
                 }
             }
         },
-        "/clients/{id}": {
-            "get": {
-                "tags": [
-                    "Protected Routes"
-                ],
-                "security": [
-                    {
-                       "bearerAuth": []
-                    }
-                 ],
-                "summary": "Get a client by ID",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful operation"
-                    },
-                    "404": {
-                        "description": "Client not found"
-                    }
-                }
-            },
+        "/clients/update": {
             "put": {
                 "tags": [
                     "Protected Routes"
@@ -276,16 +247,6 @@
                     }
                  ],
                 "summary": "Update a client by ID",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "required": true,
                     "content": {
