@@ -43,11 +43,8 @@ router.post('/in', async (req, res) => {
             username: username ? username: email,
             password: hashPassword,
         }, { transaction });
-
-        //const activationCode = generateActivationCode();
     
         await handleEmailPolicy(client.id, email);
-
 
         await transaction.commit();
 
