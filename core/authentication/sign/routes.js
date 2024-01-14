@@ -12,6 +12,7 @@ const {
     handlePasswordPolicy, 
     handleEmailPolicy, 
 } = require('./controller');
+const { handleAccessTokenPolicy } = require('../jwt/service');
 
 // Sign in a client
 router.post('/in', async (req, res) => {
@@ -40,7 +41,7 @@ router.post('/in', async (req, res) => {
         await Credential.create({
             clientId: client.id,
             authorizationId: authorization.id,
-            username: username ? username: email,
+            username: username,
             password: hashPassword,
         }, { transaction });
     
@@ -60,24 +61,29 @@ router.post('/in', async (req, res) => {
 });
 
 // Sign out a client
-router.delete('/out/:id', async (req, res) => {
-    const { id } = req.params;
+router.delete('/out', async (req, res) => {
     const transaction = await db.transaction();
-
+    
     try {
+        const tokenData = handleAccessTokenPolicy(req);
+        
+        if (!tokenData) {
+            throw new Error('Invalid authorization header');
+        }
+        
         await Credential.destroy({
             where:{
-                clientId: id,
+                clientId: tokenData.id,
             }}, { transaction});
         
         await Authorization.destroy({
             where:{
-                clientId: id,
+                clientId: tokenData.id,
             }}, { transaction});
         
         await Client.destroy({
             where:{
-                id: id,
+                id: tokenData.id,
             }}, { transaction});
 
         await transaction.commit();

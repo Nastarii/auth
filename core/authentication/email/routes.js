@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const Client = require('../../clients/model');
 
 const { sendEmail, getEmailTemplate, generateActivationCode } = require('./service');
+const { handleAccessTokenPolicy } = require('../jwt/service');
 
 router.post('/resend', async (req, res) => {
     const { email } = req.body;
@@ -97,18 +98,14 @@ router.post('/recover', async (req, res) => {
 router.post('/verify/activationCode', async (req, res) => {
     try {
         const { activationCode } = req.body;
-        
-        jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-            if (err) {
-                throw new Error('Invalid token');
-            }
-
-            if (decoded.type !== 1) {
-                throw new Error('Wrong token type');
-            }
-        });
-
-        res.status(200).json({ msg: 'token successfully verified' });
+        const tokenData = handleAccessTokenPolicy(req, tokenType=1);
+        if(!tokenData) {
+            throw new Error('Invalid authorization header');
+        }
+        if (tokenData.activationCode !== activationCode) {
+            throw new Error('Wrong activation code provided');
+        }
+        res.status(200).json({ msg: 'activation code successfully verified' });
 
     } catch (error) {
 

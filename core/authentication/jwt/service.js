@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-async function handleAccessTokenPolicy(req) {
+function handleAccessTokenPolicy(req, tokenType= 2) {
 
     const header = req.headers.authorization;
     let tokenData = null;
@@ -9,13 +9,14 @@ async function handleAccessTokenPolicy(req) {
     }
 
     const token = header.split(" ")[1];
+
     jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
         if (err) {
-            throw new Error('Invalid token');
+            return null;
         }
 
-        if (decoded.type !== 2) {
-            throw new Error('Wrong token type');
+        if (decoded.type !== tokenType) {
+            return null;
         }
 
         tokenData = decoded;

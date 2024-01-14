@@ -35,22 +35,17 @@
                 }
             }
         },
-        "/sign/out/{id}": {
+        "/sign/out": {
             "delete": {
                 "tags": [
                     "Registration Control"
                 ],
-                "summary": "Sign out: delete a client by ID",
-                "parameters": [
+                "security": [
                     {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
+                       "bearerAuth": []
                     }
-                ],
+                 ],
+                "summary": "Sign out: delete a client by ID",
                 "responses": {
                     "204": {
                         "description": "Client deleted successfully"
@@ -144,6 +139,11 @@
                 "tags": [
                     "Client Validation"
                 ],
+                "security": [
+                    {
+                       "bearerAuth": []
+                    }
+                 ],
                 "summary": "Verify a client by activation code",
                 "requestBody": {
                     "required": true,
@@ -202,8 +202,7 @@
                     }
                  ],
                 "tags": [
-                    "Access Control",
-                    "Protected Routes"
+                    "Access Control"
                 ],
                 "summary": "Log out: Disable client access to the system",
                 "responses": {

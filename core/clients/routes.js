@@ -8,7 +8,12 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { name, lastname, email } = req.body;
     try {
-        const tokenData = await handleAccessTokenPolicy(req);
+        const tokenData = handleAccessTokenPolicy(req);
+
+        if (!tokenData) {
+            throw new Error('Invalid authorization header');
+        }
+
         const client = await Client.update({ name, lastname, email },{
             where: {
                 id:id
@@ -27,7 +32,12 @@ router.put('/:id', async (req, res) => {
 // Get client by id
 router.get('/:id', async (req, res) => {
     try {
-        const tokenData = await handleAccessTokenPolicy(req);
+        const tokenData = handleAccessTokenPolicy(req);
+
+        if (!tokenData) {
+            throw new Error('Invalid authorization header');
+        }
+
         const client = await Client.findAll({
             where: {
                 id: req.params.id
@@ -43,7 +53,12 @@ router.get('/:id', async (req, res) => {
 router.get('/', async (req, res) => {
 
     try {
-        const tokenData = await handleAccessTokenPolicy(req);
+        const tokenData = handleAccessTokenPolicy(req);
+
+        if (!tokenData) {
+            throw new Error('Invalid authorization header');
+        }
+        
         const clients = await Client.findAll();
         res.status(200).json(clients);
     } catch (error) {

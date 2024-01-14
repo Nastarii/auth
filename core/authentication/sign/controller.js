@@ -60,7 +60,9 @@ async function handleEmailPolicy(id, email) {
     )
     const templateHTML = getEmailTemplate('confirmationEmail.html', { 
         token: token, 
-        domain: process.env.DOMAIN 
+        domain: process.env.DOMAIN ,
+        port: process.env.PORT,
+        name: process.env.NAME,
     });
 
     await sendEmail({

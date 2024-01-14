@@ -11,41 +11,56 @@ const { handleAccessTokenPolicy } = require('../jwt/service');
 
 // Log in a client
 router.post('/in', async (req, res) => {
-    let clientId = null;
+    let client = null;
     let attemptIp = null;
+    let credential = null;
 
     try {
-        const { username, email, password, ip } = req.body;
+        const { userdata, password, ip } = req.body;
         attemptIp = ip;
 
-        const client = await Client.findAll({
+        client = await Client.findAll({
             where: {
-                email: email
+                email: userdata
             }
         });
 
         if (client.length === 0) {
-            throw new Error('Email not found');
+            credential = await Credential.findAll({
+                where: {
+                    username: userdata
+                }
+            });
+            if (credential.length === 0) {
+                throw new Error('Email and Username not found');
+            }
+            client = await Client.findAll({
+                where: {
+                    id: credential[0].clientId
+                }
+            });
         }
 
         if (!client[0].active) {
             throw new Error('Client email not verified');
         }
 
-        clientId = client[0].id;
-        const credential = await Credential.findAll({
-            where: {
-                clientId
-            }
-        });
+        if (!credential) {
+            
+            credential = await Credential.findAll({
+                where: {
+                    clientId: client[0].id
+                }
+            });
+        }
         
         const hashedPassword = credential[0].password;
         handlePasswordPolicy(password, hashedPassword);
 
-        await handleLogs(clientId, attemptIp, true, true);
+        await handleLogs(client[0].id, attemptIp, true, true);
 
         const token = jwt.sign(
-            { id:  clientId, type: 2 },
+            { id:  client[0].id, type: 2 },
             process.env.JWT_SECRET,
             { expiresIn: '7d' },
         );
@@ -53,6 +68,8 @@ router.post('/in', async (req, res) => {
         res.status(200).json({ msg: 'client successfully logged', token: token });
 
     } catch (error) {
+
+        const clientId = (client.length !== 0) ? client[0].id: null;
 
         await handleLogs(clientId, attemptIp, true, false);
         const code = handleViolations(error);
@@ -64,7 +81,12 @@ router.post('/in', async (req, res) => {
 // Log out a client
 router.get('/out', async (req, res) => {
     try {
-        const tokenData = await handleAccessTokenPolicy(req);
+        const tokenData = handleAccessTokenPolicy(req);
+
+        if (!tokenData) {
+            throw new Error('Invalid authorization header');
+        }
+
         const client = await Client.findAll({
             where: {
                 id: tokenData.id
