@@ -13,23 +13,23 @@ router.post('/resend', async (req, res) => {
     const { email } = req.body;
     let errorCode = 500;
 
-    await Client.findAll({
+    await Credential.findAll({
         where: {
             email: email
         }
-    }).then(async client => {
-        if (client.length === 0) {
+    }).then(async credential => {
+        if (credential.length === 0) {
             errorCode = 404;
             throw new Error('Email not found');
         }
 
-        if (client[0].active) {
+        if (credential[0].active) {
             errorCode = 403;
             throw new Error('Client already verified!');
         }
 
         const token = jwt.sign(
-            { id: client[0].id, type: 0 },
+            { id: credential[0].clientId, type: 0 },
             process.env.JWT_SECRET,
             { expiresIn: '7d' },
         )
@@ -57,17 +57,17 @@ router.post('/recover', async (req, res) => {
     const { email } = req.body;
     let errorCode = 500;
 
-    await Client.findAll({
+    await Credential.findAll({
         where: {
             email: email
         }
-    }).then(async client => {
-        if (client.length === 0) {
+    }).then(async credential => {
+        if (credential.length === 0) {
             errorCode = 404;
             throw new Error('Email not found');
         }
 
-        if (!client[0].active) {
+        if (!credential[0].active) {
             errorCode = 403;
             throw new Error('Client email not verified');
         }
@@ -75,7 +75,7 @@ router.post('/recover', async (req, res) => {
         const activationCode = generateActivationCode();
 
         const token = jwt.sign(
-            { id: client[0].id, activationCode: activationCode, type: 1 },
+            { id: credential[0].clientId, activationCode: activationCode, type: 1 },
             process.env.JWT_SECRET,
             { expiresIn: '5m' },
         )
@@ -142,7 +142,7 @@ router.get('/verify', async (req, res) => {
                 throw new Error('Wrong token type');
             }
 
-            await Client.update({
+            await Credential.update({
                 active: true,
             },{
                 where: {

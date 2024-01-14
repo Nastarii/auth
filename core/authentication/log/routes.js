@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const { Op } = require('sequelize');
 
 var jwt = require('jsonwebtoken');
 
-const Client = require('../../clients/model');
 const Credential = require('../../credential/model');
 
 const { handlePasswordPolicy, handleViolations, handleLogs } = require('./controller');
@@ -11,56 +11,37 @@ const { handleAccessTokenPolicy } = require('../jwt/service');
 
 // Log in a client
 router.post('/in', async (req, res) => {
-    let client = null;
     let attemptIp = null;
     let credential = null;
 
     try {
-        const { userdata, password, ip } = req.body;
+        const { usercredential, password, ip } = req.body;
         attemptIp = ip;
 
-        client = await Client.findAll({
+        credential = await Credential.findAll({
             where: {
-                email: userdata
+                [Op.or]: [
+                    { email: usercredential },
+                    { username: usercredential }
+                ]
             }
         });
 
-        if (client.length === 0) {
-            credential = await Credential.findAll({
-                where: {
-                    username: userdata
-                }
-            });
-            if (credential.length === 0) {
-                throw new Error('Email and Username not found');
-            }
-            client = await Client.findAll({
-                where: {
-                    id: credential[0].clientId
-                }
-            });
+        if (credential.length === 0) {
+            throw new Error('Email and Username not found');
         }
 
-        if (!client[0].active) {
+        if (!credential[0].active) {
             throw new Error('Client email not verified');
         }
 
-        if (!credential) {
-            
-            credential = await Credential.findAll({
-                where: {
-                    clientId: client[0].id
-                }
-            });
-        }
-        
         const hashedPassword = credential[0].password;
         handlePasswordPolicy(password, hashedPassword);
 
-        await handleLogs(client[0].id, attemptIp, true, true);
+        await handleLogs(credential[0].clientId, attemptIp, true, true);
 
         const token = jwt.sign(
-            { id:  client[0].id, type: 2 },
+            { id:  credential[0].clientId, type: 2 },
             process.env.JWT_SECRET,
             { expiresIn: '7d' },
         );
@@ -69,7 +50,7 @@ router.post('/in', async (req, res) => {
 
     } catch (error) {
 
-        const clientId = (client.length !== 0) ? client[0].id: null;
+        const clientId = (credential.length !== 0) ? credential[0].clientId: null;
 
         await handleLogs(clientId, attemptIp, true, false);
         const code = handleViolations(error);
@@ -87,16 +68,16 @@ router.get('/out', async (req, res) => {
             throw new Error('Invalid authorization header');
         }
 
-        const client = await Client.findAll({
+        const credential = await Credential.findAll({
             where: {
-                id: tokenData.id
+                clientId: tokenData.id
             }
         });
 
-        if (client.length === 0) {
+        if (credential.length === 0) {
             throw new Error('Client not found');
         }
-        if (!client[0].active) {
+        if (!credential[0].active) {
             throw new Error('Client email not verified');
         }
         res.status(200).json({ msg: 'client successfully logged out' });

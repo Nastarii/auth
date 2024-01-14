@@ -28,13 +28,6 @@ router.put('/update', async (req, res) => {
             throw new Error('Invalid authorization header');
         }
 
-        // Search client data
-        const client = await Client.findAll({
-            where: {
-                id: tokenData.id
-            }
-        });
-
         // Search Credenttials
         const credential = await Credential.findAll({
             where: {
@@ -43,27 +36,33 @@ router.put('/update', async (req, res) => {
         });
 
         const isSamePassword = bcrypt.compareSync(newPassword, credential[0].password);
-
-        if(isSamePassword) {
-            await Credential.update({ username }, {
-                where: {
-                    clientId: tokenData.id
-                }
-            }, { transaction });
-        } else {
-            newPassword = handlePasswordPolicy(newPassword);
-            await Credential.update({ username, password: newPassword }, {
-                where: {
-                    clientId: tokenData.id
-                }
-            }, { transaction });
+        const isSameEmail = credential[0].email === email;
+        if (!isSamePassword) {
+            newPassword = handlePasswordPolicy(password);
         }
+        const updatedData  = {
+            username,
+            ...(!isSameEmail && { email }),
+            ...(!isSamePassword && { password: newPassword }),
+            active: isSameEmail // If email is the same, client is active. Otherwise, client needs a new verification
+        }
+        await Credential.update(updatedData, {
+            where: {
+                clientId: tokenData.id
+            }
+        }, { transaction });
 
-        // Check if client try to update email
-        if (client[0].email !== email) {
+        await Client.update({ name, lastname}, {
+            where: {
+                id: tokenData.id
+            }
+        }, { transaction });
+
+        // Check if client try to update email, send new verification email
+        if (!isSameEmail) {
             
             const token = jwt.sign(
-                { id: client[0].id, type: 0 },
+                { id: credential[0].clientId, type: 0 },
                 process.env.JWT_SECRET,
                 { expiresIn: '7d' },
             )
@@ -75,26 +74,13 @@ router.put('/update', async (req, res) => {
                 domain: process.env.DOMAIN 
             });
             
-            await Client.update({ name, lastname, active: false, email}, {
-                where: {
-                    id: tokenData.id
-                }
-            }, { transaction });
-
             await sendEmail({
                 to: email,
                 subject: `${process.env.NAME} Updated Email Confirmation`,
                 html: templateHTML
             }) 
 
-
-        } else {
-            await Client.update({ name, lastname, active: true}, {
-                where: {
-                    id: tokenData.id
-                }
-            }, { transaction });
-        }  
+        } 
 
         await transaction.commit();
         

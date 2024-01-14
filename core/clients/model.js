@@ -14,16 +14,6 @@ const Client = db.define('client', {
     lastname: {
         type: db.Sequelize.STRING,
         allowNull: false
-    },
-    active: {
-        type: db.Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-    },
-    email: {
-        type: db.Sequelize.STRING,
-        allowNull: false,
-        unique: true
     }
 });
 

@@ -225,7 +225,7 @@
                        "bearerAuth": []
                     }
                  ],
-                "summary": "Get a client by ID",
+                "summary": "Get a client data by his token",
                 "responses": {
                     "200": {
                         "description": "Successful operation"
@@ -246,7 +246,7 @@
                        "bearerAuth": []
                     }
                  ],
-                "summary": "Update a client by ID",
+                "summary": "Update a client data",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -300,10 +300,7 @@
             "Log in": {
                 "type": "object",
                 "properties": {
-                    "username": {
-                        "type": "string"
-                    },
-                    "email": {
+                    "usercredential": {
                         "type": "string"
                     },
                     "password": {

@@ -28,11 +28,10 @@ router.post('/in', async (req, res) => {
 
         const client = await Client.create({ 
             name, 
-            lastname, 
-            email,
+            lastname
         }, { transaction });
 
-        const authorization = await Authorization.create({ 
+        await Authorization.create({ 
             clientId: client.id,
             role: 1,
             expiresAt: expiresAt,
@@ -40,8 +39,8 @@ router.post('/in', async (req, res) => {
 
         await Credential.create({
             clientId: client.id,
-            authorizationId: authorization.id,
             username: username,
+            email: email,
             password: hashPassword,
         }, { transaction });
     
