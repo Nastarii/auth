@@ -286,6 +286,18 @@
                     "lastname": {
                         "type": "string"
                     },
+                    "address": {
+                        "type": "string"
+                    },
+                    "age":{
+                        "type": "integer"
+                    },
+                    "phone": {
+                        "type": "integer"
+                    },
+                    "companyName": {
+                        "type": "string"
+                    },
                     "username": {
                         "type": "string"
                     },

@@ -19,7 +19,17 @@ router.post('/in', async (req, res) => {
     const transaction = await db.transaction();
 
     try {
-        const { name, lastname, username, email, password } = req.body;
+        const { 
+            name, 
+            lastname, 
+            address, 
+            age, 
+            phone, 
+            companyName, 
+            username, 
+            email, 
+            password 
+        } = req.body;
 
         const hashPassword = handlePasswordPolicy(password);
 
@@ -28,7 +38,11 @@ router.post('/in', async (req, res) => {
 
         const client = await Client.create({ 
             name, 
-            lastname
+            lastname,
+            address,
+            age,
+            phone,
+            companyName
         }, { transaction });
 
         await Authorization.create({ 
