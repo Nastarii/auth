@@ -72,6 +72,10 @@ Our current estimate is that the project will be ready for launch by the end of 
 
 ![Alt text](doc/imgs/schemas.png)
 
+### Api Routes
+
+![Alt text](doc/imgs/routes.png)
+
 ### Flow execution logic
 
 ![Alt text](doc/imgs/flowchart.png)
