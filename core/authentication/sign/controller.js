@@ -1,70 +1,45 @@
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { sendEmail, getEmailTemplate } = require('../email/service');
+const Logs = require('./model');
 
 /*
-* Handle server response when unique constraint is violated
-* @param {json} error - Error object
-* @return {string} - Path of the unique constraint that was violated
+* Handle logs
+* @param id - Client id
+* @param type - Login | Logout
+* @param attempt - Success | Failure
 */
+async function handleLogs(id, ip, type, attempt){
+    await Logs.create({
+        clientId: id,
+        ip: ip,
+        type: type,
+        attempt: attempt
+    }).catch(
+        error => {
+            res.status(500).json({ msg: error.message })
+        }
+    );
+}
+
 function handleViolations(error) {
-    if(error.message === 'Password Policy Violation') {
-        return [401, null];
-    } else if (error.message === 'Email Policy Violation') {
-        return [401, null]
-    } else if (error.message === 'Validation error') {
-        const fields = Object.keys(error.fields);
-        const field = (fields.length > 0) ? fields[0] : null;
-        return [403, field];
+    if (error.message === 'Wrong Password' || error.message === 'Client email not verified') {
+        return 401;
+    }
+    else if(error.message === 'Email not found') {
+        return 404;
     } else {
-        return [500, null];
+        return 500;
     }
 }
 
-/*
-* Handle password policies
-* @param {string} errors - User Password
-* @return {string} - hashed password
-*/
-function handlePasswordPolicy(password) {
-
-    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
-    const match = passwordRegex.test(password);
-    if (!match) {
-        throw new Error('Password Policy Violation');
+function handlePasswordPolicy(password, hashedPassword) {
+    const match = bcrypt.compareSync(password, hashedPassword);
+    if(!match) {
+        throw new Error('Wrong Password');
     }
-    const salt = bcrypt.genSaltSync(10);
-    return bcrypt.hashSync(password, salt);
-}
-
-async function handleEmailPolicy(id, email) {
-    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-    const match = emailRegex.test(email);
-    if (!match) {
-        throw new Error('Email Policy Violation');
-    }
-
-    const token = jwt.sign(
-        { id:  id, type: 0 },
-        process.env.JWT_SECRET,
-        { expiresIn: '10m' },
-    )
-    const templateHTML = getEmailTemplate('confirmationEmail.html', { 
-        token: token, 
-        domain: process.env.DOMAIN ,
-        port: process.env.PORT,
-        name: process.env.NAME,
-    });
-
-    await sendEmail({
-        to: email,
-        subject: `${process.env.NAME} Confirmation Email`,
-        html: templateHTML
-    });
 }
 
 module.exports = {
-    handleViolations,
     handlePasswordPolicy,
-    handleEmailPolicy
+    handleViolations,
+    handleLogs
 };

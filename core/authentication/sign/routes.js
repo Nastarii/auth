@@ -1,113 +1,88 @@
 const express = require('express');
 const router = express.Router();
+const { Op } = require('sequelize');
 
-const db = require('../../../bootstrap');
+var jwt = require('jsonwebtoken');
 
-const Client = require('../../clients/model');
 const Credential = require('../../credential/model');
-const Authorization = require('../../authorization/model');
 
-const { 
-    handleViolations, 
-    handlePasswordPolicy, 
-    handleEmailPolicy, 
-} = require('./controller');
+const { handlePasswordPolicy, handleViolations, handleLogs } = require('./controller');
 const { handleAccessTokenPolicy } = require('../jwt/service');
 
 // Sign in a client
 router.post('/in', async (req, res) => {
-    const transaction = await db.transaction();
+    let attemptIp = null;
+    let credential = null;
 
     try {
-        const { 
-            name, 
-            lastname, 
-            address, 
-            age, 
-            phone, 
-            companyName, 
-            username, 
-            email, 
-            password 
-        } = req.body;
+        const { usercredential, password, ip } = req.body;
+        attemptIp = ip;
 
-        const hashPassword = handlePasswordPolicy(password);
+        credential = await Credential.findAll({
+            where: {
+                [Op.or]: [
+                    { email: usercredential },
+                    { username: usercredential }
+                ]
+            }
+        });
 
-        const expiresAt = new Date();
-        expiresAt.setFullYear(expiresAt.getFullYear() + 2);
+        if (credential.length === 0) {
+            throw new Error('Email and Username not found');
+        }
 
-        const client = await Client.create({ 
-            name, 
-            lastname,
-            address,
-            age,
-            phone,
-            companyName
-        }, { transaction });
+        if (!credential[0].active) {
+            throw new Error('Client email not verified');
+        }
 
-        await Authorization.create({ 
-            clientId: client.id,
-            role: 1,
-            expiresAt: expiresAt,
-        }, { transaction });
+        const hashedPassword = credential[0].password;
+        handlePasswordPolicy(password, hashedPassword);
 
-        await Credential.create({
-            clientId: client.id,
-            username: username,
-            email: email,
-            password: hashPassword,
-        }, { transaction });
-    
-        await handleEmailPolicy(client.id, email);
+        await handleLogs(credential[0].clientId, attemptIp, true, true);
 
-        await transaction.commit();
+        const token = jwt.sign(
+            { id:  credential[0].clientId, type: 2 },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' },
+        );
 
-        res.status(200).json({ msg: 'client successfully created' });
+        res.status(200).json({ msg: 'client successfully logged', token: token });
 
     } catch (error) {
-        await transaction.rollback();
 
-        const [code, field] = handleViolations(error);
+        const clientId = (credential.length !== 0) ? credential[0].clientId: null;
 
-        res.status(code).json({ msg: `${field && field} ${error.message}` });
+        await handleLogs(clientId, attemptIp, true, false);
+        const code = handleViolations(error);
+
+        res.status(code).json({ msg: error.message });
     }
 });
 
 // Sign out a client
-router.delete('/out', async (req, res) => {
-    const transaction = await db.transaction();
-    
+router.get('/out', async (req, res) => {
     try {
         const tokenData = handleAccessTokenPolicy(req);
-        
+
         if (!tokenData) {
             throw new Error('Invalid authorization header');
         }
-        
-        await Credential.destroy({
-            where:{
-                clientId: tokenData.id,
-            }}, { transaction});
-        
-        await Authorization.destroy({
-            where:{
-                clientId: tokenData.id,
-            }}, { transaction});
-        
-        await Client.destroy({
-            where:{
-                id: tokenData.id,
-            }}, { transaction});
 
-        await transaction.commit();
-        
-        res.status(200).json({ msg: 'client successfully deleted' });
+        const credential = await Credential.findAll({
+            where: {
+                clientId: tokenData.id
+            }
+        });
 
-    } catch (error) {
-
-        await transaction.rollback();
-
-        res.status(500).json(error);
+        if (credential.length === 0) {
+            throw new Error('Client not found');
+        }
+        if (!credential[0].active) {
+            throw new Error('Client email not verified');
+        }
+        res.status(200).json({ msg: 'client successfully logged out' });
+    } catch(error) {
+        res.status(400).json({ msg: error.message });
     }
 });
 

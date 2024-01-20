@@ -132,7 +132,6 @@ router.get('/verify', async (req, res) => {
 
     try {
         const token = req.query.token;
-        
         jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
             if (err) {
                 throw new Error('Invalid token');
@@ -146,12 +145,18 @@ router.get('/verify', async (req, res) => {
                 active: true,
             },{
                 where: {
-                    id: decoded.id
+                    clientId: decoded.id
                 }
             });
+
+            const accessToken = jwt.sign(
+                { id:  decoded.id, type: 2 },
+                process.env.JWT_SECRET,
+                { expiresIn: '7d' },
+            );
+            res.status(200).json({ msg: 'client successfully verified', token: accessToken });
         });
 
-        res.status(200).json({ msg: 'client successfully verified' });
 
     } catch (error) {
 

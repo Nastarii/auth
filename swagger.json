@@ -6,18 +6,18 @@
         "description": "The authentication API designed for this project follows a microservices architecture, leveraging the Node.js runtime environment, MySQL database, and Docker containerization for its implementation. The modular structure of the microservices facilitates flexibility and maintainability, allowing for seamless integration with other services within the larger system. Engineered to deliver robust, scalable, and secure authentication services within a microservices architecture."
     },
     "paths": {
-        "/sign/in": {
+        "/register/in": {
             "post": {
                 "tags": [
                     "Registration Control"
                 ],
-                "summary": "Sign in: create a new client",
+                "summary": "Sign Up: create a new client",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Sign In"
+                                "$ref": "#/components/schemas/Register"
                             }
                         }
                     }
@@ -35,7 +35,7 @@
                 }
             }
         },
-        "/sign/out": {
+        "/register/out": {
             "delete": {
                 "tags": [
                     "Registration Control"
@@ -45,7 +45,7 @@
                        "bearerAuth": []
                     }
                  ],
-                "summary": "Sign out: delete a client by ID",
+                "summary": "Un Sign: delete a client by his access token",
                 "responses": {
                     "204": {
                         "description": "Client deleted successfully"
@@ -165,18 +165,18 @@
                 }
             }
         },
-        "/log/in": {
+        "/sign/in": {
             "post": {
                 "tags": [
                     "Access Control"
                 ],
-                "summary": "Log in: Enable client access to the system",
+                "summary": "Sign in: Enable client access to the system",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Log in"
+                                "$ref": "#/components/schemas/Sign in"
                             }
                         }
                     }
@@ -194,7 +194,7 @@
                 }
             }
         },
-        "/log/out": {
+        "/sign/out": {
             "get": {
                 "security": [
                     {
@@ -252,7 +252,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Sign In"
+                                "$ref": "#/components/schemas/Register"
                             }
                         }
                     }
@@ -277,7 +277,7 @@
             }
         },
         "schemas": {
-            "Sign In": {
+            "Register": {
                 "type": "object",
                 "properties": {
                     "name": {
@@ -309,7 +309,7 @@
                     }
                 }
             },
-            "Log in": {
+            "Sign in": {
                 "type": "object",
                 "properties": {
                     "usercredential": {
