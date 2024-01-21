@@ -283,7 +283,7 @@
                     "name": {
                         "type": "string"
                     },
-                    "lastname": {
+                    "lastName": {
                         "type": "string"
                     },
                     "address": {

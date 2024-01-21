@@ -9,9 +9,10 @@ const emailRouter = require('./core/authentication/email/routes');
 const registerRouter = require('./core/authentication/register/routes');
 
 const initConfig = require('./core/init');
+var cors = require('cors');
 
 const app = express();
-
+app.use(cors({credentials: true, origin: true}));
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());

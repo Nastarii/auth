@@ -11,7 +11,7 @@ const Client = db.define('client', {
         type: db.Sequelize.STRING,
         allowNull: false
     },
-    lastname: {
+    lastName: {
         type: db.Sequelize.STRING,
         allowNull: false
     },

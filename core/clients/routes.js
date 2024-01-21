@@ -16,7 +16,7 @@ const { sendEmail, getEmailTemplate } = require('../authentication/email/service
 router.put('/update', async (req, res) => {
     const transaction = await db.transaction();
 
-    const { name, lastname, username, email, password } = req.body;
+    const { name, lastName, username, email, password } = req.body;
     let newPassword = password;
 
     try {
@@ -52,7 +52,7 @@ router.put('/update', async (req, res) => {
             }
         }, { transaction });
 
-        await Client.update({ name, lastname}, {
+        await Client.update({ name, lastName}, {
             where: {
                 id: tokenData.id
             }

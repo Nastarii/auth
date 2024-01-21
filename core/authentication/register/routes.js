@@ -21,7 +21,7 @@ router.post('/in', async (req, res) => {
     try {
         const { 
             name, 
-            lastname, 
+            lastName, 
             address, 
             age, 
             phone, 
@@ -38,7 +38,7 @@ router.post('/in', async (req, res) => {
 
         const client = await Client.create({ 
             name, 
-            lastname,
+            lastName,
             address,
             age,
             phone,
