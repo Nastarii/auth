@@ -59,31 +59,4 @@ router.post('/in', async (req, res) => {
     }
 });
 
-// Sign out a client
-router.get('/out', async (req, res) => {
-    try {
-        const tokenData = handleAccessTokenPolicy(req);
-
-        if (!tokenData) {
-            throw new Error('Invalid authorization header');
-        }
-
-        const credential = await Credential.findAll({
-            where: {
-                clientId: tokenData.id
-            }
-        });
-
-        if (credential.length === 0) {
-            throw new Error('Client not found');
-        }
-        if (!credential[0].active) {
-            throw new Error('Client email not verified');
-        }
-        res.status(200).json({ msg: 'client successfully logged out' });
-    } catch(error) {
-        res.status(400).json({ msg: error.message });
-    }
-});
-
 module.exports = router;

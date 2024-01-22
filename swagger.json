@@ -194,27 +194,6 @@
                 }
             }
         },
-        "/sign/out": {
-            "get": {
-                "security": [
-                    {
-                       "bearerAuth": []
-                    }
-                 ],
-                "tags": [
-                    "Access Control"
-                ],
-                "summary": "Log out: Disable client access to the system",
-                "responses": {
-                    "204": {
-                        "description": "Client deleted successfully"
-                    },
-                    "404": {
-                        "description": "Client not found"
-                    }
-                }
-            }
-        },
         "/clients": {
             "get": {
                 "tags": [
